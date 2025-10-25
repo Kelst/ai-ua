@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/models:/app/models:ro
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - API_WORKERS=1
+      - MODEL_PATH=/app/models/mamay-gemma-3-12b-q5_k_s.gguf
+      - MODEL_NAME=mamay-gemma-3-12b
+      - MODEL_CONTEXT_SIZE=8192
+      - MODEL_THREADS=4
+      - MODEL_BATCH_SIZE=512
+      - MODEL_GPU_LAYERS=0
+      - DEFAULT_TEMPERATURE=0.3
+      - DEFAULT_MAX_TOKENS=8192
+      - DEFAULT_TOP_K=40
+      - DEFAULT_TOP_P=0.95
+      - MAX_CONCURRENT_REQUESTS=4
+      - REQUEST_TIMEOUT=300
+      - ENABLE_METRICS=true
+      - METRICS_PORT=9090
+      - LOG_LEVEL=INFO
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          memory: 20G
